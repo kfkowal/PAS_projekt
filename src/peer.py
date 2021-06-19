@@ -100,7 +100,10 @@ class Peer:
                     s.connect(('127.0.0.1',port))
                     self.__make_friend(s,port,'127.0.0.1')
                 elif i.split()[0] == 'sm':
-                    self.__send_secret_message(" ".join(i.split()[2:]),int(i.split()[1]))
+                    try:
+                        self.__send_secret_message(" ".join(i.split()[2:]),int(i.split()[1]))
+                    except:
+                        print("Cos poszlo nie tak, ponow probe")
                 elif i.split()[0] =='ann':
                     self.__announcement(" ".join(i.split()[1:]))
                 elif i =='list':
@@ -112,11 +115,21 @@ class Peer:
                     for i in range(0,len(self.routeKeys)):
                         print(i,f" "+str(self.routeKeys[i][0]))
                 elif i.split()[0] == 'resp':
-                    self.__send_response(' '.join(i.split()[2:]),int(i.split()[1]))
+                    try:
+                        self.__send_response(' '.join(i.split()[2:]),int(i.split()[1]))
+                    except:
+                        print("Cos poszlo nie tak sprobuj ponownie")
+                elif i== 'help':
+                    print('[ HELP ]')
+                    print('ann <tresc_ogloszenia> : aby oglosic swoje ogloszenie')
+                    print('list : aby wylistowac wszystkie dostepne ogloszenia oraz odpowiadajace im indexy')
+                    print('sm <indeks_ogloszenia> <tresc_wiadomosci> : wysyla sekretna wiadomosc do peera do ktorego nalezy ogloszenie o podanym indeksie')
+                    print('history : aby wyswietlic wszystkie ostatnie odebrane  i wslane wiadomosci oraz ich indeksy')
+                    print('resp <indeks_otrzymanej_wiadomosci_z_historii>  <tresc_odpowiedzi> : aby odpowiedziec na otrzymana wiadomosc')
                 else:
                     print("nieznana instrukcja")
-        except:
-            print("Zatrzymano peera")
+        except BaseException as e:
+            print(f"ZATRZYMANOL: {e}")
         
     
     def __route(self, cyphered_message, header_to_send, client_socket, port):
@@ -276,15 +289,18 @@ class Peer:
 
 
     def __send_response(self, message, id):
-        self.routeKeysLock.acquire()
-        self.routeKeys[id][0]='You: '+str(message)
-        self.routeKeysLock.release()
+
 
 
 
         public_key = self.routeKeys[id][2]
-        self.__remove_route_key(public_key)
+        
         cyphered_message=self.__encrypt((message).encode('utf-8'),public_key)
+
+        self.routeKeysLock.acquire()
+        self.routeKeys[id][0]='You: '+str(message)
+        self.routeKeysLock.release()
+        self.__remove_route_key(public_key)
         header_dictionary=self.header_route
         header_dictionary['FROM_PORT']=self.port
         header_dictionary['MESSAGE_LENGTH']=len(cyphered_message)
@@ -337,7 +353,7 @@ class Peer:
             server.close()
 
             route_key=self.__generate_small_private_key()
-            self.__add_route_key(message, route_key, public_key)
+            self.__add_route_key('Me: '+str(message), route_key, public_key)
             my_public_key=self.__public_key_to_bytes(route_key.public_key())
             
             cyphered_message=self.__encrypt((message+"|").encode('utf-8')+my_public_key,public_key)
