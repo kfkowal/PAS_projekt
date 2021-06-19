@@ -42,9 +42,27 @@
 
 ### **Wytłumaczenie nazw komend możliwych do użycia w peerach**
 
+- 'ann', oznacza 'announce' czyli ogłoś, za pomocą tej komendy ogłaszamy nasze ogłoszenie
+
 - 'sm', oznaczna 'secret message', czyli sekretna wiadomość, operacja ta służy do wysyłania wiadomości
 - 'resp', oznacza 'response', czyli odpowiedź, za pomocą tej komendy można odpowiedzieć na otrzymaną wiadomość
 
 - 'list', za pomocą tej komendy można wylistować wszystkie dostępne ogłoszenia (które zawierają klucze publiczne)
 
 - 'help', za pomocą tej komendy uzyskamy informacje jak używać innych komend
+
+<br>
+
+## **Przykład użycia**
+
+- sieć jest uruchomiona 
+
+- używamy komendy '```ann``` Mam informacje o kosmitach odwiedzajacych Ziemie'
+
+- inny peer używa komendy '```list```' i dostaje informacje o tym ogłoszeniu, to ogłoszenie ma indeks ```0```
+
+- ten sam inny peer używa komendy '```sm``` 0 powiedz mi co wiesz o kosmitach', która wysyła wiadomość do autora ogłoszenia
+
+- autor dostaje wiadomość, i używa komendy '```history```' aby uzyskać informacje o otrzymanych wiadomościach i indeksach tych wiadomości, ta wiadomość ma indeks ```0```
+
+- autor używa nasępującej komendy aby odpowiedzieć na to pytanie: '```resp``` 0 kosmici odwiedzaja ziemie, wiem tyle, że ...'
